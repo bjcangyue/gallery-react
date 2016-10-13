@@ -5,6 +5,7 @@ require('styles/App.scss');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+var tools = require('./tools.js');
 var ImgFigure = require('./ImgFigure.js');
 
 //从json文件获取图片数据;
@@ -23,23 +24,23 @@ imageDatas = (function genImageUrl(imageDatasArr) {
 
 
 var AppComponent = React.createClass({
-    Constant:{
-        centerPos:{
-            left:0,
-            right:0
+    Constant: {
+        centerPos: {
+            left: 0,
+            right: 0
         },
-        hPosRange:{  //九宫格之水平方向的取值范围
-            leftSecX:[0,0],
-            rightSecX:[0,0],
-            y:[0,0]
+        hPosRange: {  //九宫格之水平方向的取值范围
+            leftSecX: [0, 0],
+            rightSecX: [0, 0],
+            y: [0, 0]
 
         },
-        vPosRange:{  //九宫格之垂直方向的取值范围
-            x:[0,0],
-            topY:[0,0]
+        vPosRange: {  //九宫格之垂直方向的取值范围
+            x: [0, 0],
+            topY: [0, 0]
         }
     },
-    rearrange:function(centerIndex){    //重新布局所有图片
+    rearrange: function (centerIndex) {    //重新布局所有图片
         var imgsArrangeArr = this.state.imgsArrangeArr,
             Constant = this.Constant,
             centerPos = Constant.centerPos,
@@ -50,22 +51,59 @@ var AppComponent = React.createClass({
             hPosRangeY = hPosRange.y,
             vPosRangeTopY = vPosRange.topY,
             vPosRangeX = vPosRange.x,
-            imgsArrangeTopArr =[],
-            topImgNum = Math.floor(Math.random()*2);
+            imgsArrangeTopArr = [],
+            topImgNum = Math.floor(Math.random() * 2), //顶部图片的数量为0或1;
+            topImgSpliceIndex = 0,
+            imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
+        //首先居中centerIndex的图片
+        imgsArrangeCenterArr[0].pos = centerPos;
+
+        //取出并布局上侧图片的信息
+        topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
+
+        imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex, topImgNum);
+        imgsArrangeTopArr.forEach(function (value, index) {
+            imgsArrangeTopArr[index].pos = {
+                top: tools.getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
+                left: tools.getRangeRandom(vPosRangeX[0], vPosRangeX[1])
+            };
+        });
+
+        //布局左右两侧的图片
+        for (var i = 0, j = imgsArrangeArr.length, k = j / 2; i < j; i++) {
+            var hPosRangeLORX = i < k ? hPosRangeLeftSecX : hPosRangeRightSecX;
+            imgsArrangeArr[i].pos = {
+                top: tools.getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
+                left: tools.getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
+            }
+        }
+
+        //将上部的图片再插入imgsArrangeArr
+        if (imgsArrangeTopArr && imgsArrangeTopArr[0]) {
+            imgsArrangeArr.splice(topImgSpliceIndex, 0, imgsArrangeTopArr[0]);
+        }
+        //将中间区域的图片插入到imgsArrangeArr
+        imgsArrangeArr.splice(centerIndex, 0, imgsArrangeCenterArr[0]);
+
+        this.setState({
+            imgsArrangeArr: imgsArrangeArr
+        });
+
+
     },
-    getInitialState:function(){
+    getInitialState: function () {
         return {
-            imgsArrangeArr:[
+            imgsArrangeArr: [
                 {
-                    pos:{
-                        left:'0',
-                        top:'0'
+                    pos: {
+                        left: '0',
+                        top: '0'
                     }
                 }
             ]
         };
     },
-    componentDidMount:function(){
+    componentDidMount: function () {
         //拿到舞台的大小
         var stageDOM = ReactDOM.findDOMNode(this.refs.stage),
             stageW = stageDOM.scrollWidth,
@@ -82,8 +120,8 @@ var AppComponent = React.createClass({
 
         //计算中心图片的位置点
         this.Constant.centerPos = {
-            left:halfStageW - halfImgW,
-            top:halfStageH - halfImgH
+            left: halfStageW - halfImgW,
+            top: halfStageH - halfImgH
         };
 
         // 计算左侧，右侧区域图片排布位置的取值范围
@@ -105,16 +143,17 @@ var AppComponent = React.createClass({
     render() {
         var controllerUnits = [],
             imgFigures = [];
-        imageDatas.forEach(function(value,index){
-            if(!this.state.imgsArrangeArr[index]){
+        imageDatas.forEach(function (value, index) {
+            if (!this.state.imgsArrangeArr[index]) {
                 this.state.imgsArrangeArr[index] = {
-                    pos:{
-                        left:0,
-                        top:0
+                    pos: {
+                        left: 0,
+                        top: 0
                     }
                 }
             }
-            imgFigures.push(<ImgFigure data={value} key={index} ref={'imgFigure'+index}/>);
+            imgFigures.push(<ImgFigure data={value} key={index} ref={'imgFigure'+index}
+                                       arrange={this.state.imgsArrangeArr[index]}/>);
         }.bind(this));
         return (
             <section className="stage" ref="stage">
