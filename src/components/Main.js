@@ -40,6 +40,21 @@ var AppComponent = React.createClass({
             topY: [0, 0]
         }
     },
+    inverse:function(index){
+        return function(){
+            var imgsArrangeArr = this.state.imgsArrangeArr;
+            imgsArrangeArr[index].isInverse = !imgsArrangeArr[index].isInverse;
+            this.setState({
+                imgsArrangeArr:imgsArrangeArr
+            });
+        }.bind(this);
+
+    },
+    center:function(index){
+        return function(){
+            this.rearrange(index);
+        }.bind(this)
+    },
     rearrange: function (centerIndex) {    //重新布局所有图片
         var imgsArrangeArr = this.state.imgsArrangeArr,
             Constant = this.Constant,
@@ -56,26 +71,38 @@ var AppComponent = React.createClass({
             topImgSpliceIndex = 0,
             imgsArrangeCenterArr = imgsArrangeArr.splice(centerIndex, 1);
         //首先居中centerIndex的图片
-        imgsArrangeCenterArr[0].pos = centerPos;
+        imgsArrangeCenterArr[0] = {
+            pos:centerPos,
+            rotate:0,
+            isCenter:true
+        };
 
         //取出并布局上侧图片的信息
         topImgSpliceIndex = Math.ceil(Math.random() * (imgsArrangeArr.length - topImgNum));
 
         imgsArrangeTopArr = imgsArrangeArr.splice(topImgSpliceIndex, topImgNum);
         imgsArrangeTopArr.forEach(function (value, index) {
-            imgsArrangeTopArr[index].pos = {
-                top: tools.getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
-                left: tools.getRangeRandom(vPosRangeX[0], vPosRangeX[1])
+            imgsArrangeTopArr[index] = {
+                pos: {
+                    top: tools.getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
+                    left: tools.getRangeRandom(vPosRangeX[0], vPosRangeX[1])
+                },
+                rotate: tools.get30DegRandom(),
+                isCenter:false
             };
         });
 
         //布局左右两侧的图片
         for (var i = 0, j = imgsArrangeArr.length, k = j / 2; i < j; i++) {
             var hPosRangeLORX = i < k ? hPosRangeLeftSecX : hPosRangeRightSecX;
-            imgsArrangeArr[i].pos = {
-                top: tools.getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
-                left: tools.getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
-            }
+            imgsArrangeArr[i] = {
+                pos: {
+                    top: tools.getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
+                    left: tools.getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
+                },
+                rotate: tools.get30DegRandom(),
+                isCenter:false
+            };
         }
 
         //将上部的图片再插入imgsArrangeArr
@@ -98,7 +125,10 @@ var AppComponent = React.createClass({
                     pos: {
                         left: '0',
                         top: '0'
-                    }
+                    },
+                    rotate: 0,
+                    isInverse:false,
+                    isCenter:false
                 }
             ]
         };
@@ -149,11 +179,14 @@ var AppComponent = React.createClass({
                     pos: {
                         left: 0,
                         top: 0
-                    }
+                    },
+                    rotate: 0,
+                    isInverse:false,
+                    isCenter:false
                 }
             }
             imgFigures.push(<ImgFigure data={value} key={index} ref={'imgFigure'+index}
-                                       arrange={this.state.imgsArrangeArr[index]}/>);
+                                       arrange={this.state.imgsArrangeArr[index]} inverse = {this.inverse(index)} center={this.center(index)}/>);
         }.bind(this));
         return (
             <section className="stage" ref="stage">

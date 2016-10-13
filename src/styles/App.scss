@@ -1,52 +1,79 @@
-html,body,section,figcaption,figure,img,h2{
+html, body, section, figcaption, figure, img, h2 {
     margin: 0;
     padding: 0;
 }
 
-html,body{
+html, body {
     background-color: #222;
     width: 100%;
     height: 100%;
 }
 
-.content{
+.content {
     width: 100%;
     height: 100%;
     background-color: #ddd;
 }
 
-.stage{
+.stage {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-
-.img-sec{
+.img-sec {
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
     background-color: #ddd;
 }
-.img-figure{
+
+.img-figure {
     width: 240px;
     margin: 0;
     box-sizing: border-box;
     background-color: #fff;
     position: absolute;
+    box-shadow: 2px 2px 6px #ccc;
+    cursor: pointer;
+    transform-style:preserve-3d;
+    transform-origin: 0 50% 0;
+    perspective: 1000px;
+    transition: .6s;
 }
-figcaption{
+.img-figure.is-inverse{
+    transform: rotateY(180deg) translate(-240px);
+}
+
+figcaption {
     text-align: center;
     color: #a7a0a2;
     padding-bottom: 20px;
 }
 
-.controller-nav{
+.img-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 50px 20px;
+    line-height: 30px;
+    text-align: center;
+    color: #999;
+    font-size: 22px;
+    box-sizing: border-box;
+    background-color: #fff;
+    transform:rotatey(180deg) translatez(1px);
+    text-shadow: 1px 1px 1px #ccc;
+}
+
+.controller-nav {
     position: absolute;
     width: 100%;
     left: 0;
-    bottom:30px;
+    bottom: 30px;
     text-align: center;
     z-index: 101;
 }
