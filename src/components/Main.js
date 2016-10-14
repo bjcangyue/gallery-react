@@ -7,6 +7,7 @@ var ReactDOM = require('react-dom');
 
 var tools = require('./tools.js');
 var ImgFigure = require('./ImgFigure.js');
+var ControllerUnit = require('./ControllerUnit.js');
 
 //从json文件获取图片数据;
 var imageDatas = require('../data/imageDatas.json');
@@ -187,6 +188,7 @@ var AppComponent = React.createClass({
             }
             imgFigures.push(<ImgFigure data={value} key={index} ref={'imgFigure'+index}
                                        arrange={this.state.imgsArrangeArr[index]} inverse = {this.inverse(index)} center={this.center(index)}/>);
+            controllerUnits.push(<ControllerUnit key={index} arrange = {this.state.imgsArrangeArr[index]} inverse = {this.inverse(index)} center={this.center(index)}></ControllerUnit>);
         }.bind(this));
         return (
             <section className="stage" ref="stage">
